@@ -182,14 +182,16 @@ class Export3MF(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
         """
         scale = self.global_scale
 
-        if context.scene.unit_settings.scale_length != 0:
-            scale *= context.scene.unit_settings.scale_length  # Apply the global scale of the units in Blender.
+        blender_unit_to_metre = context.scene.unit_settings.scale_length
+        if blender_unit_to_metre == 0:  # Fallback for special cases.
+            blender_unit = context.scene.unit_settings.length_unit
+            blender_unit_to_metre = blender_to_metre[blender_unit]
 
         threemf_unit = MODEL_DEFAULT_UNIT
-        blender_unit = context.scene.unit_settings.length_unit
-        scale /= threemf_to_metre[threemf_unit]  # Convert 3MF units to metre.
-        scale *= blender_to_metre[blender_unit]  # Convert metre to Blender's units.
+        threemf_unit_to_metre = threemf_to_metre[threemf_unit]
 
+        # Compute the scale factor between Blender units and 3MF units.
+        scale *= blender_unit_to_metre / threemf_unit_to_metre
         return scale
 
     def write_materials(self, resources_element, blender_objects):
@@ -276,7 +278,7 @@ class Export3MF(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
             item_element.attrib[f"{{{MODEL_NAMESPACE}}}objectid"] = str(objectid)
             mesh_transformation = transformation @ mesh_transformation
             if mesh_transformation != mathutils.Matrix.Identity(4):
-                item_element.attrib[f"{{{MODEL_NAMESPACE}}}transform"] =\
+                item_element.attrib[f"{{{MODEL_NAMESPACE}}}transform"] = \
                     self.format_transformation(mesh_transformation)
 
             metadata = Metadata()
