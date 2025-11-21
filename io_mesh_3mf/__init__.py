@@ -13,7 +13,7 @@
 bl_info = {
     "name": "3MF format",
     "author": "Ghostkeeper",
-    "version": (1, 0, 2),
+    "version": (1, 0, 3),
     "blender": (2, 80, 0),
     "location": "File > Import-Export",
     "description": "Import-Export 3MF files",
