@@ -266,6 +266,9 @@ class Export3MF(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
 
         build_element = xml.etree.ElementTree.SubElement(root, f"{{{MODEL_NAMESPACE}}}build")
         for blender_object in blender_objects:
+            # Skip objects disabled in renderers
+            if blender_object.hide_render:
+                continue
             if blender_object.parent is not None:
                 continue  # Only write objects that have no parent, since we'll get the child objects recursively.
             if blender_object.type not in {'MESH', 'EMPTY'}:
